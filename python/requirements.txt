@@ -1,0 +1,13 @@
+# VisionDrive Pro (improved desktop app)
+torch>=2.0.0
+torchvision>=0.15.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+easyocr>=1.7.0
+PyQt5>=5.15.0
+# YOLOv5 is pulled at runtime via torch.hub (needs internet on first run);
+# these are its transitive needs if not already present:
+pandas
+seaborn
+requests
+pyyaml

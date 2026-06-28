@@ -1,0 +1,6 @@
+# Training + TF.js export
+ultralytics>=8.2.0
+# tfjs export needs these (installed automatically by ultralytics export, pinned here for clarity)
+tensorflow>=2.15.0
+tensorflowjs>=4.17.0
+onnx>=1.16.0

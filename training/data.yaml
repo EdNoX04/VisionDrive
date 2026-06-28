@@ -1,0 +1,19 @@
+# Dataset config for training a licence-plate detector with Ultralytics YOLO.
+#
+# Expected layout (YOLO format — one .txt per image with: class cx cy w h, normalised):
+#   dataset/
+#     images/train/*.jpg
+#     images/val/*.jpg
+#     labels/train/*.txt
+#     labels/val/*.txt
+#
+# Good public datasets to start from: CCPD, OpenALPR benchmark, Roboflow
+# "License Plate Recognition" datasets (export in YOLOv8 format).
+
+path: ./dataset      # root, relative to where you run training
+train: images/train
+val: images/val
+
+# Single class: the plate itself.
+names:
+  0: plate

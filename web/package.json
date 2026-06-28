@@ -1,0 +1,24 @@
+{
+  "name": "speed-vision-anpr",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Speed Vision - ANPR system: vehicle detection, number plate OCR, speed estimation and color detection in the browser.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.22.0",
+    "hls.js": "^1.5.17",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tesseract.js": "^5.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
