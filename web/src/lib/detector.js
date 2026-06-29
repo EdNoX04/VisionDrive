@@ -19,7 +19,9 @@ let modelPromise = null;
 export async function loadDetector(onProgress) {
   if (!modelPromise) {
     onProgress?.("Loading vehicle detection model…");
-    modelPromise = cocoSsd.load({ base: "lite_mobilenet_v2" });
+    // mobilenet_v2 base is markedly more accurate than lite_mobilenet_v2,
+    // especially for trucks/buses — worth the slightly larger download.
+    modelPromise = cocoSsd.load({ base: "mobilenet_v2" });
   }
   return modelPromise;
 }
@@ -30,7 +32,7 @@ export async function loadDetector(onProgress) {
  * @param {number} minScore minimum confidence
  * @returns {Promise<Array<{box:{x,y,w,h}, class:string, score:number}>>}
  */
-export async function detectVehicles(model, input, minScore = 0.45) {
+export async function detectVehicles(model, input, minScore = 0.35) {
   const preds = await model.detect(input, 20);
   return preds
     .filter((p) => VEHICLE_CLASSES.has(p.class) && p.score >= minScore)

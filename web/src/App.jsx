@@ -8,7 +8,7 @@ import StatsBar from "./components/StatsBar.jsx";
 import DetectionsTable from "./components/DetectionsTable.jsx";
 
 const DEFAULT_SETTINGS = {
-  minScore: 0.45,
+  minScore: 0.35,
   metersPerPixel: 0.05,
   speedLimit: 60,
   ocrEnabled: true,
@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS = {
   requireValidFormat: true,
   colorEnabled: true,
   ocrIntervalMs: 1500,
-  ocrMinConfidence: 55,
+  ocrMinConfidence: 40,
   targetFps: 15,
 };
 
@@ -49,6 +49,7 @@ export default function App() {
     if (v) {
       v.pause();
       v.removeAttribute("src");
+      v.removeAttribute("crossorigin");
       v.srcObject = null;
       v.load();
     }
@@ -107,21 +108,38 @@ export default function App() {
     setSourceError("");
     teardownSource();
     const v = videoRef.current;
-    v.src = `${import.meta.env.BASE_URL}sample.mp4`;
-    v.loop = true;
-    v.muted = true;
-    const missing = () =>
-      setSourceError(
-        "No sample found. Run tools/fetch_sample_video.sh to add web/public/sample.mp4."
-      );
-    v.onerror = missing;
+    // Hosted on raw.githubusercontent.com (sends CORS `*`), so crossOrigin
+    // "anonymous" keeps the canvas untainted -> colour + OCR still work.
+    // Falls back to a local web/public/sample.mp4 if you add one.
+    const REMOTE =
+      "https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/person-bicycle-car-detection.mp4";
+    const LOCAL = `${import.meta.env.BASE_URL}sample.mp4`;
+
+    const tryLoad = (url, cross) =>
+      new Promise((resolve, reject) => {
+        v.onerror = () => reject(new Error("load failed"));
+        if (cross) v.crossOrigin = "anonymous";
+        else v.removeAttribute("crossorigin");
+        v.src = url;
+        v.loop = true;
+        v.muted = true;
+        v.play().then(resolve).catch(reject);
+      });
+
     try {
-      await v.play();
+      await tryLoad(REMOTE, true);
       setHasSource(true);
       setSourceLabel("Sample traffic video");
       start();
-    } catch (e) {
-      missing();
+    } catch (e1) {
+      try {
+        await tryLoad(LOCAL, false);
+        setHasSource(true);
+        setSourceLabel("Sample traffic video (local)");
+        start();
+      } catch (e2) {
+        setSourceError("Could not load the sample video (check your connection).");
+      }
     }
   }, [start, teardownSource]);
 

@@ -67,8 +67,8 @@ export async function readPlateRegion(source, region) {
 
   const rw = Math.max(8, region.w);
   const rh = Math.max(8, region.h);
-  // Upscale to ~ 240px tall plate for OCR.
-  const scale = Math.min(6, Math.max(2, 90 / rh));
+  // Upscale so the plate is ~120px tall for OCR (helps on low-res web video).
+  const scale = Math.min(8, Math.max(3, 120 / rh));
   const c = document.createElement("canvas");
   c.width = Math.round(rw * scale);
   c.height = Math.round(rh * scale);

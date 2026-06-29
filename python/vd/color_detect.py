@@ -9,9 +9,20 @@ This removes the common white→blue error caused by sky reflections on light ca
 import cv2
 import numpy as np
 
-GRAY_S = 0.20        # below this median saturation -> achromatic
-SAT_GATE = 0.28      # a pixel must beat this saturation to vote a hue
-MIN_SAT_FRAC = 0.22  # need this fraction of saturated pixels to be chromatic
+GRAY_S = 0.25        # below this median saturation -> achromatic
+SAT_GATE = 0.32      # a pixel must beat this saturation to vote a hue
+MIN_SAT_FRAC = 0.25  # need this fraction of saturated pixels to be chromatic
+MIN_WIN_SAT = 0.40   # winning hue must be this saturated, else it's a tint
+
+
+def _achromatic(med_v):
+    if med_v < 0.22:
+        return "Black"
+    if med_v > 0.70:
+        return "White"
+    if med_v > 0.42:
+        return "Silver/Gray"
+    return "Dark Gray"
 
 
 def _hue_base(h):
@@ -65,28 +76,28 @@ def detect_color(region_bgr):
     sat_mask = (S > SAT_GATE) & (V > 0.2)
     sat_frac = float(sat_mask.mean())
 
+    def hexof(arr):
+        b, g, r = int(arr[0]), int(arr[1]), int(arr[2])
+        return "#%02x%02x%02x" % (r, g, b)
+
     # ---- Stage 1: achromatic ----
     if med_s < GRAY_S or sat_frac < MIN_SAT_FRAC:
-        if med_v < 0.22:
-            name = "Black"
-        elif med_v > 0.70:
-            name = "White"
-        elif med_v > 0.42:
-            name = "Silver/Gray"
-        else:
-            name = "Dark Gray"
-        avg = flat.mean(axis=0)
-        b, g, r = int(avg[0]), int(avg[1]), int(avg[2])
-        return name, "#%02x%02x%02x" % (r, g, b)
+        return _achromatic(med_v), hexof(flat.mean(axis=0))
 
-    # ---- Stage 2: chromatic — vote a hue using saturated pixels only ----
+    # ---- Stage 2: chromatic — saturation-WEIGHTED vote over saturated pixels ----
     codes = _hue_base(H[sat_mask]).astype(np.int32)
-    counts = np.bincount(codes, minlength=len(BASE_NAMES))
-    best = int(np.argmax(counts))
-    name = _shade(BASE_NAMES[best], med_v)
+    sat_vals = S[sat_mask]
+    weights = np.bincount(codes, weights=sat_vals, minlength=len(BASE_NAMES))
+    best = int(np.argmax(weights))
 
     sat_flat = flat[sat_mask]
     chosen = sat_flat[codes == best]
+    win_mean_sat = float(sat_vals[codes == best].mean()) if len(chosen) else 0.0
+
+    # Guard: weak tint (e.g. sky reflection on a white car) -> achromatic.
+    if win_mean_sat < MIN_WIN_SAT:
+        return _achromatic(med_v), hexof(flat.mean(axis=0))
+
+    name = _shade(BASE_NAMES[best], med_v)
     avg = chosen.mean(axis=0) if len(chosen) else sat_flat.mean(axis=0)
-    b, g, r = int(avg[0]), int(avg[1]), int(avg[2])
-    return name, "#%02x%02x%02x" % (r, g, b)
+    return name, hexof(avg)

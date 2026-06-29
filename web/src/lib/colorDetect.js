@@ -60,9 +60,17 @@ function hex(r, g, b) {
 }
 
 // Tunables.
-const GRAY_S = 0.20;       // below this median saturation -> achromatic
-const SAT_GATE = 0.28;     // a pixel must beat this saturation to vote a hue
-const MIN_SAT_FRAC = 0.22; // need this fraction of saturated pixels to be chromatic
+const GRAY_S = 0.25;       // below this median saturation -> achromatic
+const SAT_GATE = 0.32;     // a pixel must beat this saturation to vote a hue
+const MIN_SAT_FRAC = 0.25; // need this fraction of saturated pixels to be chromatic
+const MIN_WIN_SAT = 0.40;  // winning hue must be this saturated, else it's a tint
+
+function achromatic(medV) {
+  if (medV < 0.22) return "Black";
+  if (medV > 0.70) return "White";
+  if (medV > 0.42) return "Silver/Gray";
+  return "Dark Gray";
+}
 
 export function detectColor(ctx, box) {
   const cw = ctx.canvas.width, ch = ctx.canvas.height;
@@ -101,38 +109,44 @@ export function detectColor(ctx, box) {
   for (let i = 0; i < n; i++) if (S[i] > SAT_GATE && V[i] > 0.2) satCount++;
   const satFrac = satCount / n;
 
-  // ---- Stage 1: achromatic (white / silver / grey / black) ----
-  if (medS < GRAY_S || satFrac < MIN_SAT_FRAC) {
-    let name;
-    if (medV < 0.22) name = "Black";
-    else if (medV > 0.70) name = "White";
-    else if (medV > 0.42) name = "Silver/Gray";
-    else name = "Dark Gray";
+  const avgAll = () => {
     let rs = 0, gs = 0, bs = 0;
     for (let i = 0; i < n; i++) { rs += R[i]; gs += G[i]; bs += B[i]; }
-    return {
-      name,
-      hex: hex(rs / n, gs / n, bs / n),
-      confidence: Math.round((1 - medS) * 100),
-    };
+    return hex(rs / n, gs / n, bs / n);
+  };
+
+  // ---- Stage 1: achromatic (white / silver / grey / black) ----
+  if (medS < GRAY_S || satFrac < MIN_SAT_FRAC) {
+    return { name: achromatic(medV), hex: avgAll(), confidence: Math.round((1 - medS) * 100) };
   }
 
-  // ---- Stage 2: chromatic — vote a hue using only saturated pixels ----
-  const counts = {};
-  const sums = {};
+  // ---- Stage 2: chromatic — saturation-WEIGHTED vote over saturated pixels ----
+  const weight = {};   // name -> summed saturation (vote weight)
+  const sums = {};     // name -> [r,g,b,count,satSum]
   for (let i = 0; i < n; i++) {
     if (S[i] <= SAT_GATE || V[i] <= 0.2) continue;
     const name = hueName(H[i]);
-    counts[name] = (counts[name] || 0) + 1;
-    const acc = sums[name] || (sums[name] = [0, 0, 0, 0]);
-    acc[0] += R[i]; acc[1] += G[i]; acc[2] += B[i]; acc[3]++;
+    weight[name] = (weight[name] || 0) + S[i];
+    const acc = sums[name] || (sums[name] = [0, 0, 0, 0, 0]);
+    acc[0] += R[i]; acc[1] += G[i]; acc[2] += B[i]; acc[3]++; acc[4] += S[i];
   }
-  let best = "Red", bestC = -1;
-  for (const k in counts) if (counts[k] > bestC) { bestC = counts[k]; best = k; }
+  let best = null, bestW = -1;
+  for (const k in weight) if (weight[k] > bestW) { bestW = weight[k]; best = k; }
+  if (!best) {
+    return { name: achromatic(medV), hex: avgAll(), confidence: Math.round((1 - medS) * 100) };
+  }
   const acc = sums[best];
+  const winMeanSat = acc[4] / acc[3];
+
+  // Guard: if the "winning" colour is actually a weak tint (e.g. sky reflection
+  // on a white car), treat the vehicle as achromatic instead.
+  if (winMeanSat < MIN_WIN_SAT) {
+    return { name: achromatic(medV), hex: avgAll(), confidence: Math.round((1 - winMeanSat) * 100) };
+  }
+
   return {
     name: shade(best, medV),
     hex: hex(acc[0] / acc[3], acc[1] / acc[3], acc[2] / acc[3]),
-    confidence: Math.round((bestC / satCount) * 100),
+    confidence: Math.round(Math.min(1, winMeanSat) * 100),
   };
 }
