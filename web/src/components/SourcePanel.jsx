@@ -6,7 +6,7 @@ const TABS = [
   { key: "stream", label: "Live stream" },
 ];
 
-export default function SourcePanel({ active, onWebcam, onFile, onStream, onStop }) {
+export default function SourcePanel({ active, onWebcam, onFile, onStream, onSample, onStop }) {
   const [tab, setTab] = useState("webcam");
   const [url, setUrl] = useState("");
   const fileInput = useRef(null);
@@ -49,6 +49,10 @@ export default function SourcePanel({ active, onWebcam, onFile, onStream, onStop
           <button className="btn btn-primary" onClick={() => fileInput.current.click()}>
             Choose video file
           </button>
+          <button className="btn btn-ghost" onClick={onSample}>
+            ▶ Load sample video
+          </button>
+          <p className="hint">No clip handy? Try the bundled sample traffic video.</p>
         </div>
       )}
 

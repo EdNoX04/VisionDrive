@@ -103,6 +103,28 @@ export default function App() {
     [start, teardownSource]
   );
 
+  const startSample = useCallback(async () => {
+    setSourceError("");
+    teardownSource();
+    const v = videoRef.current;
+    v.src = `${import.meta.env.BASE_URL}sample.mp4`;
+    v.loop = true;
+    v.muted = true;
+    const missing = () =>
+      setSourceError(
+        "No sample found. Run tools/fetch_sample_video.sh to add web/public/sample.mp4."
+      );
+    v.onerror = missing;
+    try {
+      await v.play();
+      setHasSource(true);
+      setSourceLabel("Sample traffic video");
+      start();
+    } catch (e) {
+      missing();
+    }
+  }, [start, teardownSource]);
+
   const startStream = useCallback(
     async (url) => {
       setSourceError("");
@@ -158,6 +180,7 @@ export default function App() {
             onWebcam={startWebcam}
             onFile={startFile}
             onStream={startStream}
+            onSample={startSample}
             onStop={stopAll}
           />
           <SettingsPanel settings={settings} setSettings={setSettings} />

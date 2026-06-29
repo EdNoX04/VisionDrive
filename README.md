@@ -44,6 +44,16 @@ vehicle, produces: a tracked bounding box, an estimated **speed**, the recognise
 The pipeline is identical across both apps: **detect → track → estimate speed → detect
 colour → localise plate → OCR → validate format → log**.
 
+## Screenshots
+
+_Captured from the live app — see [`docs/screenshots`](docs/screenshots)._
+
+<!-- Added after the first deploy:
+![Dashboard](docs/screenshots/dashboard.png)
+![Detection log](docs/screenshots/log.png)
+-->
+
+
 ## Repository structure
 
 ```
@@ -73,6 +83,12 @@ The first run downloads the detection model and OCR data in the browser. Pick a 
 (webcam / video file / live HLS-MJPEG stream), press **Run**, and watch the live overlay
 and detection log. Build for production with `npm run build`.
 
+No clip handy? Grab a sample traffic video and use the **Load sample video** button:
+
+```bash
+bash tools/fetch_sample_video.sh     # downloads web/public/sample.mp4
+```
+
 ➡️ Full web docs: [`web/README.md`](web/README.md)
 
 ### 🖥️ Desktop app (Python)
@@ -88,6 +104,17 @@ tune calibration / speed limit / plate format, and export the CSV log; snapshots
 saved to `captures/`.
 
 ➡️ Full desktop docs: [`python/README.md`](python/README.md)
+
+## Deploy to Vercel
+
+The web app deploys as a static site:
+
+1. Push this repo to GitHub.
+2. On [vercel.com](https://vercel.com) → **Add New → Project** → import the repo.
+3. Set **Root Directory** to `web` (Vercel auto-detects Vite: build `npm run build`,
+   output `dist`).
+4. **Deploy**. Add the sample video first (`bash tools/fetch_sample_video.sh`, then
+   commit) so the live demo has a clip to run.
 
 ## Live cameras & CCTV
 
