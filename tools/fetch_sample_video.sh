@@ -11,8 +11,10 @@
 #
 set -e
 
-# Default: a widely-used demo traffic video (Intel IoT sample-videos, Apache-2.0).
-DEFAULT_URL="https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/car-detection.mp4"
+# Default: a STREET-LEVEL traffic clip (Intel IoT sample-videos, CC-BY-4.0).
+# Use a ground-level view — COCO-SSD barely detects top-down/aerial vehicles
+# (which is why car-detection.mp4, an overhead clip, gives 0 detections).
+DEFAULT_URL="https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/person-bicycle-car-detection.mp4"
 URL="${1:-$DEFAULT_URL}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

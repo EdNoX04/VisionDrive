@@ -108,39 +108,47 @@ export default function App() {
     setSourceError("");
     teardownSource();
     const v = videoRef.current;
-    // Hosted on raw.githubusercontent.com (sends CORS `*`), so crossOrigin
-    // "anonymous" keeps the canvas untainted -> colour + OCR still work.
-    // Falls back to a local web/public/sample.mp4 if you add one.
-    const REMOTE =
-      "https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/person-bicycle-car-detection.mp4";
-    const LOCAL = `${import.meta.env.BASE_URL}sample.mp4`;
 
-    const tryLoad = (url, cross) =>
+    // Candidates in priority order. jsDelivr is a real CDN that serves GitHub
+    // files with proper CORS + video range requests, so crossOrigin "anonymous"
+    // keeps the canvas untainted (colour + OCR keep working). A local
+    // web/public/sample.mp4 (same-origin) is tried last if you add one.
+    // NOTE: use a STREET-LEVEL clip. COCO-SSD is trained on ground-level images
+    // and barely detects top-down/aerial vehicles (e.g. intel's car-detection.mp4).
+    const SAMPLES = [
+      { url: "https://cdn.jsdelivr.net/gh/intel-iot-devkit/sample-videos@master/person-bicycle-car-detection.mp4", cross: true },
+      { url: "https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/person-bicycle-car-detection.mp4", cross: true },
+      { url: `${import.meta.env.BASE_URL}sample.mp4`, cross: false },
+    ];
+
+    const tryLoad = ({ url, cross }) =>
       new Promise((resolve, reject) => {
-        v.onerror = () => reject(new Error("load failed"));
+        v.removeAttribute("src");
         if (cross) v.crossOrigin = "anonymous";
         else v.removeAttribute("crossorigin");
-        v.src = url;
         v.loop = true;
         v.muted = true;
-        v.play().then(resolve).catch(reject);
+        v.onerror = () => reject(new Error("load failed: " + url));
+        v.oncanplay = () => resolve();
+        v.src = url;
+        v.load();
+        v.play().catch(() => {}); // play() rejection is fine; oncanplay drives success
       });
 
-    try {
-      await tryLoad(REMOTE, true);
-      setHasSource(true);
-      setSourceLabel("Sample traffic video");
-      start();
-    } catch (e1) {
+    for (const s of SAMPLES) {
       try {
-        await tryLoad(LOCAL, false);
+        await tryLoad(s);
+        v.onerror = null;
+        v.oncanplay = null;
         setHasSource(true);
-        setSourceLabel("Sample traffic video (local)");
+        setSourceLabel("Sample traffic video");
         start();
-      } catch (e2) {
-        setSourceError("Could not load the sample video (check your connection).");
+        return;
+      } catch (e) {
+        /* try next candidate */
       }
     }
+    setSourceError("Could not load the sample video (check your connection).");
   }, [start, teardownSource]);
 
   const startStream = useCallback(
