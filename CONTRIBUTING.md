@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in improving Speed Vision!
+Thanks for your interest in improving VisionDrive!
 
 ## Project layout
 

@@ -5,7 +5,7 @@
     </marker>
   </defs>
 
-  <text x="530" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#ff5a3c">Speed Vision — ANPR pipeline</text>
+  <text x="530" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#ff5a3c">VisionDrive — ANPR pipeline</text>
 
   <!-- stages -->
   <g>

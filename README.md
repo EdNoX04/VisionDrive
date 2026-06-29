@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚗 Speed Vision — ANPR System
+# 🚗 VisionDrive — ANPR System
 
 **Detect vehicles, read number plates, estimate speed, and identify vehicle colour — from any video, webcam, or live CCTV stream.**
 
@@ -17,7 +17,7 @@ Two implementations sharing the same logic: a **zero-install React web app** tha
 
 ## Overview
 
-Speed Vision is an **Automatic Number Plate Recognition (ANPR)** system built for the
+VisionDrive is an **Automatic Number Plate Recognition (ANPR)** system built for the
 LENSXplore *Speed Vision* problem statement. It processes a video stream and, for every
 vehicle, produces: a tracked bounding box, an estimated **speed**, the recognised
 **number plate**, and the **vehicle colour** — with a live dashboard and exportable logs.

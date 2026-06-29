@@ -47,7 +47,7 @@ export default function DetectionsTable({ records, speedLimit, onReset }) {
       })
       .join("");
     const html = `<!doctype html><html><head><meta charset="utf-8">
-<title>Speed Vision — Detection Report</title>
+<title>VisionDrive — Detection Report</title>
 <style>
 body{font-family:system-ui,sans-serif;margin:24px;color:#111}
 h1{margin:0 0 4px}.sub{color:#666;margin:0 0 18px}
@@ -56,7 +56,7 @@ th,td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:middle}
 th{background:#f4f6fb}img{height:46px;border-radius:4px;border:1px solid #ccc}
 .mono{font-family:ui-monospace,Menlo,monospace;letter-spacing:.5px}
 </style></head><body>
-<h1>Speed Vision — Detection Report</h1>
+<h1>VisionDrive — Detection Report</h1>
 <p class="sub">Generated ${new Date().toLocaleString()} · ${records.length} vehicles · speed limit ${speedLimit || "—"} km/h</p>
 <table><thead><tr>
 <th>Snapshot</th><th>Plate</th><th>Type</th><th>Colour</th><th>Speed</th><th>Max</th><th>Conf</th><th>First seen</th>

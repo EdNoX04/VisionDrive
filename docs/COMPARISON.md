@@ -1,4 +1,4 @@
-# Speed Vision (React) vs. original VisionDrive
+# VisionDrive Web (React) vs. original VisionDrive
 
 This documents how the React web app covers everything in the original
 [VisionDrive](https://github.com/Aman-2305/VisionDrive) (a PyQt5 desktop app:
@@ -6,7 +6,7 @@ YOLOv5s + EasyOCR + KMeans colour) and where it goes further.
 
 ## Feature parity
 
-| Capability | VisionDrive (Python/PyQt5) | Speed Vision (React) |
+| Capability | VisionDrive (Python/PyQt5) | VisionDrive Web (React) |
 |---|---|---|
 | Vehicle detection | YOLOv5s (car/bus/truck) | COCO-SSD + **optional trainable YOLOv5/v8** (car/bus/truck/motorcycle/bicycle) |
 | Number-plate OCR | EasyOCR on the **whole vehicle crop** | Tesseract.js on a **localised plate crop** (CV or YOLO) + Otsu threshold |
@@ -20,7 +20,7 @@ YOLOv5s + EasyOCR + KMeans colour) and where it goes further.
 
 - **Real object tracking.** VisionDrive keys vehicles by their *detection index*
   (`vehicle_{i}`) each frame, so IDs shuffle constantly and speed is unreliable.
-  Speed Vision uses a centroid tracker with stable IDs, distance gating and EMA
+  VisionDrive Web uses a centroid tracker with stable IDs, distance gating and EMA
   smoothing, so each vehicle keeps one ID and one speed.
 - **Dedicated plate localisation.** EasyOCR was run on the entire vehicle box;
   here a CV localizer (or a trained YOLO model) finds the plate first, so OCR sees

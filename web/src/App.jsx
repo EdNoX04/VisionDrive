@@ -163,7 +163,7 @@ export default function App() {
         <div className="brand">
           <span className="logo-dot" />
           <div>
-            <h1>Speed Vision</h1>
+            <h1>VisionDrive</h1>
             <p>ANPR · vehicle detection, plate OCR, speed &amp; colour</p>
           </div>
         </div>

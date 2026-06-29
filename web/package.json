@@ -1,9 +1,9 @@
 {
-  "name": "speed-vision-anpr",
+  "name": "visiondrive-web",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Speed Vision - ANPR system: vehicle detection, number plate OCR, speed estimation and color detection in the browser.",
+  "description": "VisionDrive - ANPR system (web): vehicle detection, number plate OCR, speed estimation and color detection in the browser.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

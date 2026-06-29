@@ -1,4 +1,4 @@
-# Training a YOLO licence-plate model for Speed Vision
+# Training a YOLO licence-plate model for VisionDrive
 
 This trains a dedicated **plate detector** (much more accurate than the built-in
 classic-CV localizer) and exports it to TensorFlow.js so the React app can run it
